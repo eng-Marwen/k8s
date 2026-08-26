@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: samsar
+data:
+  AI_API_URL: ai-service
+  API_URL: backend-service
