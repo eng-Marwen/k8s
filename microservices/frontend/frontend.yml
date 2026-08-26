@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: samsar
+  labels:
+    app: frontend-dep-label
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend-pod-label
+  template:
+    metadata:
+      labels:
+        app: frontend-pod-label
+    spec:
+      containers:
+      - name: frontend-container
+        image: engmarwen/samsar:frontend-1.1.1
+        ports:
+          - containerPort: 80
+        env:
+          - name: FIRE_BASE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: frontend-secret
+                key: FIRE_BASE_API_KEY
+          - name: AI_API_URL
+            valueFrom:
+              configMapKeyRef:
+                name: frontend-config
+                key: AI_API_URL
+          - name: API_URL
+            valueFrom:
+              configMapKeyRef:
+                name: frontend-config
+                key: API_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service-url
+  namespace: samsar
+spec:
+  selector:
+    app: frontend-pod-label
+  ports:
+    - protocol: TCP
+      port: 8080 #servicePort
+      targetPort: 80 
+      nodePort: 30002 #exposed outside the 
+
+  type: NodePort
