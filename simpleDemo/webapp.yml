@@ -1,0 +1,63 @@
+# DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  labels: # Labels of the deployment.(each object can be labeled)
+    app: webapp-deployment-label
+
+spec: #deployment config
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webapp-pod-label  
+  template:
+    metadata:
+      labels:
+        app: webapp-pod-label #used by deploy and servicel
+    spec:
+      containers:
+      - name: webapp-container
+        image: nanajanashia/k8s-demo-app:v1.0
+        ports:
+        - containerPort: 3000 
+        env:
+        - name: USER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret #name of the secret defined in mongo-secret.yml(metadata)
+              key: mongo_user
+        - name: USER_PWD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret #name of the secret defined in mongo-secret.yml(metadata)
+              key: mongo_password
+        - name: MONGO_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-config #name of the configmap defined in mongo-config.yml(metadata)
+              key: mongo-url
+---
+
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service-url #exposed url
+spec:
+
+  type: NodePort  #make it externally accessible default is clusterIP(internal only)
+
+  selector: #select pods with the same label
+    app: webapp-pod-label
+  ports:
+    - protocol: TCP
+      port: 3000 #serviceort          internal communication
+      targetPort: 3000  #containerPort
+
+      nodePort: 30001  #external must be in [30000-32767] range
+
+# Now Kubernetes exposes:
+
+# Node IP : NodePort
+
