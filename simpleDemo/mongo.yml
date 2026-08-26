@@ -1,0 +1,87 @@
+# Generally, Deployment and Service can be defined in the same YAML file.
+# They are still two separate Kubernetes resources.
+
+# ============================================================
+# DEPLOYMENT
+# ============================================================
+
+apiVersion: apps/v1
+# API version used for Deployment resources.
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  # Name of the Deployment.
+
+  labels: # Labels of the deployment.(each object can be labeled)
+    app: mongo-deployement-label
+
+spec: #deployment config
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: mongo-pod-label  #u can use any key: value pair.
+      # The Deployment uses this label to identify which Pods
+      # belong to this Deployment.
+      #
+      # IMPORTANT:
+      # This must match the labels defined below in template.metadata.labels.
+
+  template:
+    # Template used to create each Pod.
+
+    metadata:
+      labels:
+        app: mongo-pod-label #used by deploy and service
+        # Label assigned to every Pod created by this Deployment.
+        #
+        # The Deployment selector above looks for:
+        # app: mongo-pod-label
+    spec:
+      # Specification of the Pod.
+
+      containers:
+      - name: mongo-container
+        # Name of the container inside the Pod.
+
+        image: mongo:5.0
+        # Docker image used to create the container.
+
+        ports:
+        - containerPort: 27017 
+          # MongoDB listens on port 27017 inside the container.
+          #
+          # IMPORTANT:
+          # containerPort does NOT expose MongoDB outside the Pod.
+          # To allow other Pods/applications to access MongoDB,
+          # we normally create a Service.
+        #access to secret values from mongo-secret.yml file
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret #name of the secret defined in mongo-secret.yml(metadata)
+              key: mongo_user
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret #name of the secret defined in mongo-secret.yml(metadata)
+              key: mongo_password
+---
+
+# ============================================================
+# Service
+# ============================================================
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service #exposed url
+spec:
+  selector: #select pods with the same label
+    app: mongo-pod-label
+  ports:
+    - protocol: TCP
+      port: 27017 #serviceort 
+      targetPort: 27017  #containerPort
+
