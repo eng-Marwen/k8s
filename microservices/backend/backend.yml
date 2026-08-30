@@ -38,5 +38,4 @@ spec:
     - protocol: TCP
       port: 4001 #servicePort
       targetPort: 4000 #podPort
-      nodePort: 30001
-  type: NodePort
+  type: ClusterIP
