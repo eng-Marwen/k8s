@@ -7,8 +7,8 @@ metadata:
   namespace: samsar
 
   annotations:
-    # Maximum size of a request body accepted by NGINX Ingress(10 Mb).
-    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    # Maximum size of a request body accepted by NGINX Ingress(40 Mb).
+    nginx.ingress.kubernetes.io/proxy-body-size: "40m"
 spec:
   # Use the NGINX Ingress Controller to process this Ingress.
   ingressClassName: nginx
@@ -41,3 +41,13 @@ spec:
                 name: backend-service-url
                 port:
                   number: 4001
+
+          #AIMICROSERVICE
+          - path: /api/ai
+            pathType: Prefix
+            backend:
+              service:
+                name: aimicroservice-service-url
+                port:
+                  number: 8000
+  
