@@ -1,4 +1,4 @@
-# Samsar Microservices Platform (Minikube)
+# Microservices Platform (Minikube)
 
 ![Architecture Diagram](./architecture.png)
 
@@ -49,8 +49,8 @@ echo "$(minikube ip) samsarpromax.local.com" | sudo tee -a /etc/hosts
 | **Frontend** | Deployment | 2 | `8080` | `/` | Web UI |
 | **Backend** | Deployment | 3 | `4001` | `/api` | REST API (connects to external MongoDB) |
 | **AI Microservice** | Deployment | 2 | `8000` | `/api/ai` | ML Models & LLM Inference |
-| **RabbitMQ** | StatefulSet | 1 | `5672` | Internal | Message Queue (2Gi PVC) |
-| **Redis** | StatefulSet | 1 | `6379` | Internal | Cache (2Gi PVC) |
+| **RabbitMQ** | StatefulSet | 1 | `5672` | Internal | Message Queue (1Gi PVC) |
+| **Redis** | StatefulSet | 1 | `6379` | Internal | Cache (1Gi PVC) |
 | **Qdrant** | StatefulSet | 1 | `6333` | Internal | Vector Database (3Gi PVC) |
 
 ---
@@ -60,16 +60,3 @@ echo "$(minikube ip) samsarpromax.local.com" | sudo tee -a /etc/hosts
 - **Web App**: `https://samsarpromax.local.com/`
 - **Backend API**: `https://samsarpromax.local.com/api`
 - **AI Microservice**: `https://samsarpromax.local.com/api/ai`
-
----
-
-## 🔍 Quick Inspection
-
-```bash
-# Check all resources
-kubectl get all,pvc,ingress -n samsar
-
-# Stream logs
-kubectl logs -n samsar -l app=backend-pod-label -f
-kubectl logs -n samsar -l app=aimicroservice-pod-label -f
-```
